@@ -75,6 +75,24 @@ public class CadastroReceitaStep1Fragment extends Fragment
 
         if (viewModel.fotoPath != null) mostrarFoto(viewModel.fotoPath);
 
+        // Atualiza título da toolbar quando em modo edição
+        View btnBack = view.findViewById(R.id.btn_back);
+        if (btnBack != null) {
+            View parent = (View) btnBack.getParent();
+            if (parent instanceof android.view.ViewGroup) {
+                android.view.ViewGroup toolbar = (android.view.ViewGroup) parent;
+                for (int i = 0; i < toolbar.getChildCount(); i++) {
+                    android.view.View child = toolbar.getChildAt(i);
+                    if (child instanceof android.widget.TextView) {
+                        android.widget.TextView tv = (android.widget.TextView) child;
+                        if (tv.getText() != null && tv.getText().toString().contains("Receita")) {
+                            tv.setText(viewModel.modoEdicao() ? "Editar Receita" : "Nova Receita");
+                        }
+                    }
+                }
+            }
+        }
+
         viewModel.categorias.observe(getViewLifecycleOwner(), this::popularChipsCategorias);
 
         view.findViewById(R.id.area_foto).setOnClickListener(v -> mostrarPicker());

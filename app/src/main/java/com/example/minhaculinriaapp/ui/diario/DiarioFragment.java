@@ -26,6 +26,7 @@ import androidx.navigation.Navigation;
 import com.example.minhaculinriaapp.R;
 import com.example.minhaculinriaapp.data.entity.Execucao;
 import com.example.minhaculinriaapp.data.entity.ReceitaResumida;
+import com.example.minhaculinriaapp.data.entity.VariavelTecnica;
 import com.example.minhaculinriaapp.ui.camera.CameraFragment;
 import com.example.minhaculinriaapp.ui.camera.FotoPickerBottomSheet;
 import com.example.minhaculinriaapp.viewmodel.DiarioViewModel;
@@ -118,12 +119,18 @@ public class DiarioFragment extends Fragment implements FotoPickerBottomSheet.Li
                 ReceitaResumida r = listaReceitas.get(position);
                 receitaIdSelecionada = r.id;
                 viewModel.selecionarReceita(r.id);
+                View btnSalvar = requireView().findViewById(R.id.btn_salvar_registro);
+                btnSalvar.setEnabled(true);
+                btnSalvar.setAlpha(1f);
             }
         });
 
         viewModel.execucoes.observe(getViewLifecycleOwner(), this::renderEvolucao);
 
-        view.findViewById(R.id.btn_salvar_registro).setOnClickListener(v -> salvar());
+        View btnSalvar = view.findViewById(R.id.btn_salvar_registro);
+        btnSalvar.setEnabled(false);
+        btnSalvar.setAlpha(0.5f);
+        btnSalvar.setOnClickListener(v -> salvar());
 
         getParentFragmentManager().setFragmentResultListener(
                 CameraFragment.RESULT_KEY, getViewLifecycleOwner(), (key, bundle) -> {
@@ -328,7 +335,25 @@ public class DiarioFragment extends Fragment implements FotoPickerBottomSheet.Li
 
         String nota = notaAtual > 0 ? String.valueOf(notaAtual) : null;
 
-        viewModel.salvar(receitaIdSelecionada, nota, observacoes, fotoPathAtual);
+        // Coletar variáveis técnicas preenchidas
+        List<VariavelTecnica> variaveis = new ArrayList<>();
+        for (int i = 0; i < containerVariaveis.getChildCount(); i++) {
+            View row = containerVariaveis.getChildAt(i);
+            android.widget.EditText etLabel = row.findViewById(R.id.et_label_variavel);
+            android.widget.EditText etValor = row.findViewById(R.id.et_valor_variavel);
+            String chave = etLabel != null && etLabel.getText() != null
+                    ? etLabel.getText().toString().trim() : "";
+            String valor = etValor != null && etValor.getText() != null
+                    ? etValor.getText().toString().trim() : "";
+            if (!chave.isEmpty() || !valor.isEmpty()) {
+                VariavelTecnica v = new VariavelTecnica();
+                v.chave = chave;
+                v.valor = valor;
+                variaveis.add(v);
+            }
+        }
+
+        viewModel.salvar(receitaIdSelecionada, nota, observacoes, fotoPathAtual, variaveis);
 
         etFuncionou.setText("");
         etMelhoria.setText("");
@@ -339,7 +364,8 @@ public class DiarioFragment extends Fragment implements FotoPickerBottomSheet.Li
         btnTrocarFoto.setVisibility(View.GONE);
         setNota(0);
 
-        Toast.makeText(requireContext(), "Registro salvo!", Toast.LENGTH_SHORT).show();
+        com.google.android.material.snackbar.Snackbar.make(
+                requireView(), "Registro salvo!", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show();
     }
 
     private int dpToPx(int dp) {

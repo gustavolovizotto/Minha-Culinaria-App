@@ -32,6 +32,7 @@
                 app:startIconTint="@color/outline">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_busca"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
@@ -39,44 +40,52 @@
                     android:textColorHint="@color/outline" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Categorias -->
+            <!-- Categorias (seção ocultada quando não há categorias) -->
             <LinearLayout
+                android:id="@+id/section_categorias"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="32dp"
-                android:layout_marginBottom="16dp">
+                android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Categorias"
-                    android:textColor="@color/on_surface"
-                    android:textAppearance="?attr/textAppearanceTitleMedium" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginBottom="16dp">
 
-                <TextView
-                    android:id="@+id/card_nova_categoria"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Categorias"
+                        android:textColor="@color/on_surface"
+                        android:textAppearance="?attr/textAppearanceTitleMedium" />
+
+                    <TextView
+                        android:id="@+id/card_nova_categoria"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="+ Nova"
+                        android:textAllCaps="true"
+                        android:textColor="@color/primary_container"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.1"
+                        android:textStyle="bold"
+                        android:clickable="true"
+                        android:focusable="true" />
+                </LinearLayout>
+
+                <!-- RecyclerView categorias (grid 2 colunas) -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_categorias"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="+ Nova"
-                    android:textAllCaps="true"
-                    android:textColor="@color/primary_container"
-                    android:textSize="11sp"
-                    android:letterSpacing="0.1"
-                    android:textStyle="bold"
-                    android:clickable="true"
-                    android:focusable="true" />
+                    android:nestedScrollingEnabled="false"
+                    android:overScrollMode="never" />
+
             </LinearLayout>
-
-            <!-- RecyclerView categorias (grid 2 colunas) -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_categorias"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:overScrollMode="never" />
 
             <!-- Descobertas Recentes -->
             <LinearLayout

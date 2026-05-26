@@ -73,14 +73,17 @@
                     android:layout_marginBottom="16dp">
 
                     <TextView
+                        android:id="@+id/tv_avatar_inicial"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@drawable/bg_avatar_circle"
                         android:gravity="center"
-                        android:text="R"
+                        android:text="C"
                         android:textColor="@color/primary"
                         android:textSize="44sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:clickable="true"
+                        android:focusable="true" />
 
                     <!-- Verified badge (bottom-right) -->
                     <TextView
@@ -97,13 +100,16 @@
 
                 <!-- Name -->
                 <TextView
+                    android:id="@+id/tv_nome_chef"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:text="Chef Ricardo"
+                    android:text="Chef"
                     android:textColor="@color/primary"
                     android:textSize="28sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true" />
 
                 <!-- Title badge -->
                 <TextView
@@ -134,11 +140,14 @@
                         android:textSize="13sp" />
 
                     <TextView
+                        android:id="@+id/tv_localidade"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="São Paulo, Brasil"
+                        android:text="Toque para definir"
                         android:textColor="@color/on_surface_variant"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        android:clickable="true"
+                        android:focusable="true" />
                 </LinearLayout>
             </LinearLayout>
 

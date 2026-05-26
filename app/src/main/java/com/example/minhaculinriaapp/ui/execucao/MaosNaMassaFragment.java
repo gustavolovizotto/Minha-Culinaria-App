@@ -134,7 +134,14 @@ public class MaosNaMassaFragment extends Fragment {
                 Navigation.findNavController(v).navigateUp());
 
         btnAnterior.setOnClickListener(v -> viewModel.voltar());
-        btnProximo.setOnClickListener(v -> viewModel.avancar());
+        btnProximo.setOnClickListener(v -> {
+            int idx = viewModel.getIndice().getValue() != null ? viewModel.getIndice().getValue() : 0;
+            if (idx >= listaPassos.size() - 1) {
+                Navigation.findNavController(v).navigateUp();
+            } else {
+                viewModel.avancar();
+            }
+        });
 
         btnTimer.setOnClickListener(v -> {
             if (timerAtivo) {
@@ -151,7 +158,13 @@ public class MaosNaMassaFragment extends Fragment {
             }
         });
 
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO)
+        boolean vozAtivada = requireContext()
+                .getSharedPreferences("perfil_prefs", android.content.Context.MODE_PRIVATE)
+                .getBoolean("voz_ativada", true);
+
+        if (!vozAtivada) {
+            layoutVozChip.setVisibility(View.GONE);
+        } else if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO)
                 == PackageManager.PERMISSION_GRANTED) {
             micPermissionGranted = true;
             initSpeechRecognizer();
@@ -208,7 +221,9 @@ public class MaosNaMassaFragment extends Fragment {
         progressBar.setProgress(progress);
 
         btnAnterior.setEnabled(idx > 0);
-        btnProximo.setEnabled(idx < total - 1);
+        boolean ultimoPasso = idx >= total - 1;
+        btnProximo.setEnabled(true);
+        btnProximo.setText(ultimoPasso ? "FINALIZAR ✓" : "PRÓXIMO →");
 
         atualizarBotaoTimer(passo);
     }

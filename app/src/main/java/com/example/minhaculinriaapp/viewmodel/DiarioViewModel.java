@@ -11,6 +11,7 @@ import androidx.lifecycle.Transformations;
 import com.example.minhaculinriaapp.data.database.AppDatabase;
 import com.example.minhaculinriaapp.data.entity.Execucao;
 import com.example.minhaculinriaapp.data.entity.ReceitaResumida;
+import com.example.minhaculinriaapp.data.entity.VariavelTecnica;
 
 import java.util.List;
 
@@ -35,13 +36,23 @@ public class DiarioViewModel extends AndroidViewModel {
         receitaIdLiveData.setValue(id);
     }
 
-    public void salvar(long receitaId, String nota, String observacoes, String fotoPath) {
-        Execucao execucao = new Execucao();
-        execucao.receitaId = receitaId;
-        execucao.data = System.currentTimeMillis();
-        execucao.nota = nota;
-        execucao.observacoes = observacoes;
-        execucao.fotoPath = fotoPath;
-        new Thread(() -> db.execucaoDao().inserir(execucao)).start();
+    public void salvar(long receitaId, String nota, String observacoes,
+                       String fotoPath, List<VariavelTecnica> variaveis) {
+        new Thread(() -> {
+            Execucao execucao = new Execucao();
+            execucao.receitaId = receitaId;
+            execucao.data = System.currentTimeMillis();
+            execucao.nota = nota;
+            execucao.observacoes = observacoes;
+            execucao.fotoPath = fotoPath;
+            long execucaoId = db.execucaoDao().inserir(execucao);
+
+            if (variaveis != null && !variaveis.isEmpty()) {
+                for (VariavelTecnica v : variaveis) {
+                    v.execucaoId = execucaoId;
+                }
+                db.variavelTecnicaDao().inserirLista(variaveis);
+            }
+        }).start();
     }
 }

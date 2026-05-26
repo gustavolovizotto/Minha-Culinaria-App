@@ -21,6 +21,9 @@ public class CadastroReceitaViewModel extends AndroidViewModel {
     private final ReceitaRepository receitaRepo;
     public final LiveData<List<Categoria>> categorias;
 
+    // null = nova receita, non-null = edição
+    public Long receitaEditandoId = null;
+
     // Dados acumulados entre os 3 passos
     public String nome;
     public String descricao;
@@ -42,6 +45,10 @@ public class CadastroReceitaViewModel extends AndroidViewModel {
         categorias = new CategoriaRepository(app).listarTodas();
     }
 
+    public boolean modoEdicao() {
+        return receitaEditandoId != null;
+    }
+
     public void salvar() {
         Receita r = new Receita();
         r.nome = nome != null ? nome : "";
@@ -53,11 +60,18 @@ public class CadastroReceitaViewModel extends AndroidViewModel {
         r.dificuldade = dificuldade;
         r.tags = tags;
         r.notas = notas;
-        r.criadoEm = System.currentTimeMillis();
-        receitaRepo.inserirCompleta(r, new ArrayList<>(ingredientes), new ArrayList<>(passos));
+
+        if (modoEdicao()) {
+            r.id = receitaEditandoId;
+            receitaRepo.atualizarCompleta(r, new ArrayList<>(ingredientes), new ArrayList<>(passos));
+        } else {
+            r.criadoEm = System.currentTimeMillis();
+            receitaRepo.inserirCompleta(r, new ArrayList<>(ingredientes), new ArrayList<>(passos));
+        }
     }
 
     public void limpar() {
+        receitaEditandoId = null;
         nome = null;
         descricao = null;
         categoriaId = null;

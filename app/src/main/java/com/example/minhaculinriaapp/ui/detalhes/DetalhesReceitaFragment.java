@@ -6,12 +6,15 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -20,9 +23,14 @@ import androidx.navigation.Navigation;
 import com.example.minhaculinriaapp.R;
 import com.example.minhaculinriaapp.data.entity.Ingrediente;
 import com.example.minhaculinriaapp.data.entity.Passo;
+import com.example.minhaculinriaapp.data.entity.Receita;
 import com.example.minhaculinriaapp.data.entity.ReceitaResumida;
+import com.example.minhaculinriaapp.data.repository.ReceitaRepository;
+import com.example.minhaculinriaapp.viewmodel.CadastroReceitaViewModel;
 import com.example.minhaculinriaapp.viewmodel.DetalhesReceitaViewModel;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DetalhesReceitaFragment extends Fragment {
@@ -33,6 +41,10 @@ public class DetalhesReceitaFragment extends Fragment {
     private TextView tvNome, tvCategoria, tvDificuldade, tvDescricao, tvTempo, tvPorcoes;
     private LinearLayout containerIngredientes, containerPassos, containerTags;
     private View scrollTags;
+
+    private ReceitaResumida receitaAtual;
+    private List<Ingrediente> ingredientesAtuais = new ArrayList<>();
+    private List<Passo> passosAtuais = new ArrayList<>();
 
     @Nullable
     @Override
@@ -62,6 +74,10 @@ public class DetalhesReceitaFragment extends Fragment {
         view.findViewById(R.id.btn_back).setOnClickListener(v ->
                 Navigation.findNavController(v).navigateUp());
 
+        // Botão de menu (editar / excluir)
+        ImageButton btnMenu = view.findViewById(R.id.btn_menu_receita);
+        btnMenu.setOnClickListener(v -> mostrarMenuOpcoes(v));
+
         view.findViewById(R.id.btn_iniciar_execucao).setOnClickListener(v -> {
             long receitaId = getArguments() != null ? getArguments().getLong("receitaId", -1) : -1;
             if (receitaId != -1) {
@@ -71,15 +87,78 @@ public class DetalhesReceitaFragment extends Fragment {
             }
         });
 
-        // Receber o ID passado pela navegação
         long receitaId = getArguments() != null ? getArguments().getLong("receitaId", -1) : -1;
         if (receitaId != -1) {
             viewModel.carregarReceita(receitaId);
         }
 
-        viewModel.receita.observe(getViewLifecycleOwner(), this::preencherCabecalho);
-        viewModel.ingredientes.observe(getViewLifecycleOwner(), this::preencherIngredientes);
-        viewModel.passos.observe(getViewLifecycleOwner(), this::preencherPassos);
+        viewModel.receita.observe(getViewLifecycleOwner(), r -> {
+            receitaAtual = r;
+            preencherCabecalho(r);
+        });
+        viewModel.ingredientes.observe(getViewLifecycleOwner(), lista -> {
+            ingredientesAtuais = lista != null ? lista : new ArrayList<>();
+            preencherIngredientes(ingredientesAtuais);
+        });
+        viewModel.passos.observe(getViewLifecycleOwner(), lista -> {
+            passosAtuais = lista != null ? lista : new ArrayList<>();
+            preencherPassos(passosAtuais);
+        });
+    }
+
+    private void mostrarMenuOpcoes(View anchor) {
+        PopupMenu popup = new PopupMenu(requireContext(), anchor);
+        popup.getMenu().add(0, 1, 0, "Editar receita");
+        popup.getMenu().add(0, 2, 1, "Excluir receita");
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == 1) {
+                editarReceita();
+                return true;
+            } else if (item.getItemId() == 2) {
+                confirmarExclusao();
+                return true;
+            }
+            return false;
+        });
+        popup.show();
+    }
+
+    private void editarReceita() {
+        if (receitaAtual == null) return;
+
+        // Popula o ViewModel de cadastro com os dados atuais para edição
+        CadastroReceitaViewModel cadastroVM =
+                new ViewModelProvider(requireActivity()).get(CadastroReceitaViewModel.class);
+        cadastroVM.limpar();
+        cadastroVM.receitaEditandoId = receitaAtual.id;
+        cadastroVM.nome = receitaAtual.nome;
+        cadastroVM.descricao = receitaAtual.descricao;
+        cadastroVM.fotoPath = receitaAtual.fotoPath;
+        cadastroVM.tags = receitaAtual.tags;
+        cadastroVM.tempoMinutos = receitaAtual.tempoMinutos;
+        cadastroVM.rendimento = receitaAtual.rendimento;
+        cadastroVM.dificuldade = receitaAtual.dificuldade;
+        cadastroVM.ingredientes.addAll(ingredientesAtuais);
+        cadastroVM.passos.addAll(passosAtuais);
+
+        Navigation.findNavController(requireView())
+                .navigate(R.id.action_detalhes_to_editar_receita);
+    }
+
+    private void confirmarExclusao() {
+        if (receitaAtual == null) return;
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Excluir receita")
+                .setMessage("Excluir \"" + receitaAtual.nome + "\"? Esta ação não pode ser desfeita.")
+                .setPositiveButton("Excluir", (d, w) -> {
+                    Receita r = new Receita();
+                    r.id = receitaAtual.id;
+                    r.nome = receitaAtual.nome;
+                    new ReceitaRepository(requireActivity().getApplication()).deletar(r);
+                    Navigation.findNavController(requireView()).navigateUp();
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
     }
 
     private void preencherCabecalho(ReceitaResumida r) {
@@ -89,16 +168,14 @@ public class DetalhesReceitaFragment extends Fragment {
         tvDescricao.setText(r.descricao != null ? r.descricao : "");
         tvCategoria.setText(r.categoriaNome != null ? r.categoriaNome : "Geral");
         tvDificuldade.setText(r.dificuldade != null ? r.dificuldade : "");
-
         tvTempo.setText(r.tempoMinutos != null ? r.tempoMinutos + " min" : "—");
         tvPorcoes.setText(r.rendimento != null ? String.valueOf(r.rendimento) : "—");
 
         if (r.fotoPath != null && !r.fotoPath.isEmpty()) {
-            try {
-                ivFoto.setImageURI(Uri.parse(r.fotoPath));
-            } catch (Exception e) {
-                ivFoto.setImageResource(R.drawable.receita1);
-            }
+            Uri uri = r.fotoPath.startsWith("content://")
+                    ? Uri.parse(r.fotoPath)
+                    : Uri.fromFile(new File(r.fotoPath));
+            ivFoto.setImageURI(uri);
         }
 
         // Tags
@@ -157,7 +234,6 @@ public class DetalhesReceitaFragment extends Fragment {
             rowParams.bottomMargin = dpToPx(16);
             row.setLayoutParams(rowParams);
 
-            // Badge com número
             TextView badge = new TextView(requireContext());
             badge.setText(String.valueOf(passo.numero));
             badge.setTextSize(13f);
@@ -172,7 +248,6 @@ public class DetalhesReceitaFragment extends Fragment {
             badge.setLayoutParams(badgeParams);
             row.addView(badge);
 
-            // Descrição
             TextView tvDesc = new TextView(requireContext());
             tvDesc.setText(passo.descricao != null ? passo.descricao : "");
             tvDesc.setTextSize(15f);

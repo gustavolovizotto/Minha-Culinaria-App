@@ -1,12 +1,15 @@
 package com.example.minhaculinriaapp.widget;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import com.example.minhaculinriaapp.MainActivity;
 import com.example.minhaculinriaapp.R;
 
 import java.util.Locale;
@@ -27,8 +30,16 @@ public class CofreWidget extends AppWidgetProvider {
         String label = prefs.getString(KEY_TIMER_LABEL, null);
         int remaining = prefs.getInt(KEY_TIMER_REMAINING, 0);
 
+        // PendingIntent para abrir o app ao tocar no widget
+        Intent launchIntent = new Intent(ctx, MainActivity.class);
+        launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                ctx, 0, launchIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
         for (int id : ids) {
             RemoteViews views = new RemoteViews(ctx.getPackageName(), R.layout.widget_cofre);
+            views.setOnClickPendingIntent(R.id.widget_root, pendingIntent);
+
             if (label != null) {
                 views.setTextViewText(R.id.widget_timer_label, label);
                 views.setTextViewText(R.id.widget_timer_remaining,

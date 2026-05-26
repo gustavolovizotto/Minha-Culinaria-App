@@ -18,18 +18,28 @@ import java.util.List;
 public class CategoriaAdapter extends RecyclerView.Adapter<CategoriaAdapter.ViewHolder> {
 
     private List<CategoriaComContagem> lista = new ArrayList<>();
+    private Long categoriaFiltroId = null;
     private OnItemClickListener listener;
+    private OnItemLongClickListener longListener;
 
     public interface OnItemClickListener {
         void onClick(CategoriaComContagem categoria);
     }
 
-    public void setOnItemClickListener(OnItemClickListener l) {
-        this.listener = l;
+    public interface OnItemLongClickListener {
+        void onLongClick(CategoriaComContagem categoria);
     }
+
+    public void setOnItemClickListener(OnItemClickListener l) { this.listener = l; }
+    public void setOnItemLongClickListener(OnItemLongClickListener l) { this.longListener = l; }
 
     public void submitList(List<CategoriaComContagem> novaLista) {
         lista = novaLista != null ? novaLista : new ArrayList<>();
+        notifyDataSetChanged();
+    }
+
+    public void setCategoriaFiltro(Long id) {
+        categoriaFiltroId = id;
         notifyDataSetChanged();
     }
 
@@ -59,15 +69,24 @@ public class CategoriaAdapter extends RecyclerView.Adapter<CategoriaAdapter.View
         }
         holder.viewCor.setBackgroundColor(cor);
 
+        boolean selecionada = categoriaFiltroId != null && categoriaFiltroId == item.id;
+        holder.itemView.setAlpha(selecionada ? 1f : (categoriaFiltroId != null ? 0.5f : 1f));
+        holder.itemView.setScaleX(selecionada ? 1.03f : 1f);
+        holder.itemView.setScaleY(selecionada ? 1.03f : 1f);
+
         if (listener != null) {
             holder.itemView.setOnClickListener(v -> listener.onClick(item));
+        }
+        if (longListener != null) {
+            holder.itemView.setOnLongClickListener(v -> {
+                longListener.onLongClick(item);
+                return true;
+            });
         }
     }
 
     @Override
-    public int getItemCount() {
-        return lista.size();
-    }
+    public int getItemCount() { return lista.size(); }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View viewCor;

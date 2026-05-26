@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.minhaculinriaapp.R;
 import com.example.minhaculinriaapp.data.entity.ReceitaResumida;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,13 +65,13 @@ public class ReceitaAdapter extends RecyclerView.Adapter<ReceitaAdapter.ViewHold
         }
 
         if (item.fotoPath != null && !item.fotoPath.isEmpty()) {
-            try {
-                holder.ivFoto.setImageURI(Uri.parse(item.fotoPath));
-            } catch (Exception e) {
-                holder.ivFoto.setImageResource(R.drawable.receita1);
-            }
+            Uri uri = item.fotoPath.startsWith("content://")
+                    ? Uri.parse(item.fotoPath)
+                    : Uri.fromFile(new File(item.fotoPath));
+            holder.ivFoto.setImageURI(uri);
+            holder.ivFoto.setVisibility(View.VISIBLE);
         } else {
-            holder.ivFoto.setImageResource(R.drawable.receita1);
+            holder.ivFoto.setVisibility(View.GONE);
         }
 
         if (listener != null) {

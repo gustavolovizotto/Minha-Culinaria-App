@@ -15,7 +15,7 @@ import java.util.List;
 public interface ExecucaoDao {
 
     @Insert
-    void inserir(Execucao execucao);
+    long inserir(Execucao execucao);
 
     @Update
     void atualizar(Execucao execucao);
