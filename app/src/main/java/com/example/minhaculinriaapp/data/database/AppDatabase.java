@@ -21,7 +21,7 @@ import com.example.minhaculinriaapp.data.entity.VariavelTecnica;
 
 @Database(
     entities = {Categoria.class, Receita.class, Ingrediente.class, Passo.class, Execucao.class, VariavelTecnica.class},
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {

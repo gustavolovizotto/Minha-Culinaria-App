@@ -49,7 +49,12 @@ public class ReceitaAdapter extends RecyclerView.Adapter<ReceitaAdapter.ViewHold
 
         holder.tvNome.setText(item.nome);
         holder.tvDescricao.setText(item.descricao != null ? item.descricao : "");
-        holder.tvCategoria.setText(item.categoriaNome != null ? item.categoriaNome : "Geral");
+        if (item.categoriaNome != null && !item.categoriaNome.isEmpty()) {
+            holder.tvCategoria.setText(item.categoriaNome);
+            holder.tvCategoria.setVisibility(View.VISIBLE);
+        } else {
+            holder.tvCategoria.setVisibility(View.GONE);
+        }
         holder.tvDificuldade.setText(item.dificuldade != null ? item.dificuldade : "");
 
         if (item.tempoMinutos != null) {

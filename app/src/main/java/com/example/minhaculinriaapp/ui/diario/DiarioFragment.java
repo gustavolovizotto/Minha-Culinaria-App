@@ -115,13 +115,16 @@ public class DiarioFragment extends Fragment implements FotoPickerBottomSheet.Li
         });
 
         actReceita.setOnItemClickListener((parent, v, position, id) -> {
-            if (position < listaReceitas.size()) {
-                ReceitaResumida r = listaReceitas.get(position);
-                receitaIdSelecionada = r.id;
-                viewModel.selecionarReceita(r.id);
-                View btnSalvar = requireView().findViewById(R.id.btn_salvar_registro);
-                btnSalvar.setEnabled(true);
-                btnSalvar.setAlpha(1f);
+            String nomeSelecionado = (String) parent.getAdapter().getItem(position);
+            habilitarSalvarPorNome(nomeSelecionado);
+        });
+
+        actReceita.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+                habilitarSalvarPorNome(s.toString().trim());
             }
         });
 
@@ -140,6 +143,22 @@ public class DiarioFragment extends Fragment implements FotoPickerBottomSheet.Li
                         mostrarFoto(path);
                     }
                 });
+    }
+
+    private void habilitarSalvarPorNome(String nome) {
+        View btnSalvar = requireView().findViewById(R.id.btn_salvar_registro);
+        for (ReceitaResumida r : listaReceitas) {
+            if (r.nome.equals(nome)) {
+                receitaIdSelecionada = r.id;
+                viewModel.selecionarReceita(r.id);
+                btnSalvar.setEnabled(true);
+                btnSalvar.setAlpha(1f);
+                return;
+            }
+        }
+        receitaIdSelecionada = -1;
+        btnSalvar.setEnabled(false);
+        btnSalvar.setAlpha(0.5f);
     }
 
     private void setupStarRating() {
@@ -308,7 +327,41 @@ public class DiarioFragment extends Fragment implements FotoPickerBottomSheet.Li
         }
 
         outer.addView(content);
+
+        outer.setClickable(true);
+        outer.setFocusable(true);
+        Execucao captured = e;
+        int capturedNumero = numero;
+        outer.setOnClickListener(v -> mostrarDetalhesExecucao(captured, capturedNumero, sdf));
+
         return outer;
+    }
+
+    private void mostrarDetalhesExecucao(Execucao e, int numero, SimpleDateFormat sdf) {
+        StringBuilder msg = new StringBuilder();
+        msg.append(sdf.format(new Date(e.data)).toUpperCase(Locale.getDefault()));
+        msg.append("\n\n");
+
+        if (!TextUtils.isEmpty(e.nota)) {
+            try {
+                int starCount = Math.round(Float.parseFloat(e.nota));
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < 5; i++) sb.append(i < starCount ? "★" : "☆");
+                msg.append(sb).append("\n\n");
+            } catch (NumberFormatException ignored) {}
+        }
+
+        if (!TextUtils.isEmpty(e.observacoes)) {
+            msg.append(e.observacoes);
+        } else {
+            msg.append("Sem observações registradas.");
+        }
+
+        new android.app.AlertDialog.Builder(requireContext())
+                .setTitle("TENTATIVA #" + String.format(Locale.getDefault(), "%02d", numero))
+                .setMessage(msg.toString())
+                .setPositiveButton("Fechar", null)
+                .show();
     }
 
     private void setTextStyle(TextView tv, boolean bold) {

@@ -17,11 +17,12 @@ public class CadastroCategoriaViewModel extends AndroidViewModel {
         repo = new CategoriaRepository(app);
     }
 
-    public void salvar(String nome, String descricao, String cor) {
+    public void salvar(String nome, String descricao, String cor, String fotoPath) {
         Categoria c = new Categoria();
         c.nome = nome;
         c.descricao = descricao;
         c.cor = cor;
+        c.fotoPath = fotoPath;
         repo.inserir(c);
     }
 }

@@ -1,14 +1,18 @@
 package com.example.minhaculinriaapp.ui.perfil;
 
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -22,15 +26,28 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.minhaculinriaapp.R;
 import com.example.minhaculinriaapp.viewmodel.PerfilViewModel;
 
+import java.io.File;
+
 public class PerfilFragment extends Fragment {
 
     private static final String PREFS = "perfil_prefs";
     private static final String KEY_NOME = "nome";
-    private static final String KEY_LOCALIDADE = "localidade";
+    private static final String KEY_FOTO_AVATAR = "foto_avatar";
     public static final String KEY_VOZ_ATIVADA = "voz_ativada";
 
     private PerfilViewModel viewModel;
     private SharedPreferences prefs;
+    private ImageView ivAvatarFoto;
+    private TextView tvNome;
+    private TextView tvAvatar;
+
+    private final ActivityResultLauncher<String> pickAvatarImageLauncher =
+            registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+                if (uri != null) {
+                    prefs.edit().putString(KEY_FOTO_AVATAR, uri.toString()).apply();
+                    mostrarFotoAvatar(uri.toString());
+                }
+            });
 
     @Nullable
     @Override
@@ -52,39 +69,26 @@ public class PerfilFragment extends Fragment {
         prefs = requireContext().getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE);
         viewModel = new ViewModelProvider(this).get(PerfilViewModel.class);
 
-        TextView tvNome = view.findViewById(R.id.tv_nome_chef);
-        TextView tvAvatar = view.findViewById(R.id.tv_avatar_inicial);
-        TextView tvLocalidade = view.findViewById(R.id.tv_localidade);
+        tvNome = view.findViewById(R.id.tv_nome_chef);
+        tvAvatar = view.findViewById(R.id.tv_avatar_inicial);
+        ivAvatarFoto = view.findViewById(R.id.iv_avatar_foto);
         TextView tvReceitas = view.findViewById(R.id.tv_total_receitas);
         TextView tvExecucoes = view.findViewById(R.id.tv_total_execucoes);
         TextView tvHoras = view.findViewById(R.id.tv_total_horas);
         SwitchCompat switchVoz = view.findViewById(R.id.switch_voz);
 
-        // Carregar dados salvos
         String nome = prefs.getString(KEY_NOME, "Chef");
-        String localidade = prefs.getString(KEY_LOCALIDADE, "");
-        atualizarNomeUI(tvNome, tvAvatar, nome);
-        tvLocalidade.setText(localidade.isEmpty() ? "Toque para definir" : localidade);
+        atualizarNomeUI(nome);
 
-        // Switch de voz — persiste preferência
+        String fotoPath = prefs.getString(KEY_FOTO_AVATAR, null);
+        if (fotoPath != null) mostrarFotoAvatar(fotoPath);
+
         switchVoz.setChecked(prefs.getBoolean(KEY_VOZ_ATIVADA, true));
         switchVoz.setOnCheckedChangeListener((btn, checked) ->
                 prefs.edit().putBoolean(KEY_VOZ_ATIVADA, checked).apply());
 
-        // Editar nome ao clicar
-        tvNome.setOnClickListener(v -> mostrarDialogoEdicao(
-                "Seu nome", nome, KEY_NOME, novo -> {
-                    atualizarNomeUI(tvNome, tvAvatar, novo);
-                }));
-        tvAvatar.setOnClickListener(v -> tvNome.performClick());
+        view.findViewById(R.id.frame_avatar).setOnClickListener(v -> mostrarOpcoesEdicaoPerfil());
 
-        // Editar localidade ao clicar
-        tvLocalidade.setOnClickListener(v -> mostrarDialogoEdicao(
-                "Cidade / País", prefs.getString(KEY_LOCALIDADE, ""), KEY_LOCALIDADE, novo -> {
-                    tvLocalidade.setText(novo.isEmpty() ? "Toque para definir" : novo);
-                }));
-
-        // Stats do Room
         viewModel.totalReceitas.observe(getViewLifecycleOwner(), n ->
                 tvReceitas.setText(n != null ? String.valueOf(n) : "0"));
         viewModel.totalExecucoes.observe(getViewLifecycleOwner(), n ->
@@ -92,37 +96,52 @@ public class PerfilFragment extends Fragment {
         viewModel.totalHorasCozinhando.observe(getViewLifecycleOwner(), h ->
                 tvHoras.setText((h != null ? String.valueOf(h) : "0") + "h"));
 
-        // Rows de configuração (abrem configurações do sistema)
-        view.findViewById(R.id.row_timer).setOnClickListener(v ->
-                abrirConfiguracoesNotificacao());
-        view.findViewById(R.id.row_notificacoes).setOnClickListener(v ->
-                abrirConfiguracoesNotificacao());
-        view.findViewById(R.id.row_privacidade).setOnClickListener(v ->
-                mostrarInfo("Privacidade",
-                        "Todos os seus dados ficam armazenados localmente neste dispositivo.\nNenhuma informação é enviada a servidores externos."));
+        view.findViewById(R.id.row_timer).setOnClickListener(v -> abrirConfiguracoesNotificacao());
     }
 
-    private void atualizarNomeUI(TextView tvNome, TextView tvAvatar, String nome) {
-        tvNome.setText(nome);
-        tvAvatar.setText(nome.isEmpty() ? "?" : String.valueOf(nome.charAt(0)).toUpperCase());
+    private void mostrarOpcoesEdicaoPerfil() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Editar Perfil")
+                .setItems(new CharSequence[]{"Editar Nome", "Trocar Foto"}, (dialog, which) -> {
+                    if (which == 0) {
+                        mostrarDialogoEdicaoNome();
+                    } else {
+                        pickAvatarImageLauncher.launch("image/*");
+                    }
+                })
+                .show();
     }
 
-    private void mostrarDialogoEdicao(String titulo, String valorAtual, String chave, Callback callback) {
+    private void mostrarDialogoEdicaoNome() {
+        String nomeAtual = prefs.getString(KEY_NOME, "Chef");
         EditText input = new EditText(requireContext());
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
-        input.setText(valorAtual);
-        input.setSelection(valorAtual.length());
+        input.setText(nomeAtual);
+        input.setSelection(nomeAtual.length());
 
         new AlertDialog.Builder(requireContext())
-                .setTitle(titulo)
+                .setTitle("Seu nome")
                 .setView(input)
                 .setPositiveButton("Salvar", (d, w) -> {
                     String novo = input.getText().toString().trim();
-                    prefs.edit().putString(chave, novo).apply();
-                    callback.onSaved(novo);
+                    prefs.edit().putString(KEY_NOME, novo).apply();
+                    atualizarNomeUI(novo);
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
+    }
+
+    private void mostrarFotoAvatar(String path) {
+        Uri uri = path.startsWith("content://")
+                ? Uri.parse(path)
+                : Uri.fromFile(new File(path));
+        ivAvatarFoto.setImageURI(uri);
+        ivAvatarFoto.setVisibility(View.VISIBLE);
+    }
+
+    private void atualizarNomeUI(String nome) {
+        tvNome.setText(nome);
+        tvAvatar.setText(nome.isEmpty() ? "?" : String.valueOf(nome.charAt(0)).toUpperCase());
     }
 
     private void abrirConfiguracoesNotificacao() {
@@ -131,17 +150,5 @@ public class PerfilFragment extends Fragment {
         intent.putExtra(android.provider.Settings.EXTRA_APP_PACKAGE,
                 requireContext().getPackageName());
         startActivity(intent);
-    }
-
-    private void mostrarInfo(String titulo, String mensagem) {
-        new AlertDialog.Builder(requireContext())
-                .setTitle(titulo)
-                .setMessage(mensagem)
-                .setPositiveButton("OK", null)
-                .show();
-    }
-
-    interface Callback {
-        void onSaved(String valor);
     }
 }

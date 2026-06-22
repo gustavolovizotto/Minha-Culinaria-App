@@ -16,4 +16,7 @@ public class Categoria {
     public String descricao;
 
     public String cor;
+
+    @androidx.room.ColumnInfo(name = "foto_path")
+    public String fotoPath;
 }

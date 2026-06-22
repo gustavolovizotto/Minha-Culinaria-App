@@ -138,120 +138,115 @@
             android:progressTint="@color/primary" />
     </LinearLayout>
 
-    <!-- Scrollable content -->
-    <ScrollView
+    <!-- Middle: flexible area with card anchored to bottom -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:paddingHorizontal="20dp">
+        android:layout_weight="1">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tv_sem_passos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="16dp">
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="32dp"
+            android:text="Nenhum passo cadastrado para esta receita."
+            android:textColor="@color/outline"
+            android:textSize="15sp"
+            android:visibility="gone" />
 
-            <!-- FrameLayout: badge floats over card top edge -->
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+        <!-- Badge + card pinned to bottom -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingBottom="12dp">
 
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/card_passo"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    app:cardBackgroundColor="@color/surface_container"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="3dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="24dp"
-                        android:paddingTop="30dp">
-
-                        <TextView
-                            android:id="@+id/tv_titulo_passo"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="12dp"
-                            android:textColor="@color/on_surface"
-                            android:textSize="26sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/tv_descricao_passo"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="16dp"
-                            android:lineSpacingMultiplier="1.5"
-                            android:textColor="@color/on_surface_variant"
-                            android:textSize="16sp" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_iniciar_timer"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="40dp"
-                            android:text="Iniciar Timer"
-                            android:textSize="13sp"
-                            android:layout_marginBottom="16dp"
-                            android:visibility="gone" />
-
-                        <View
-                            android:id="@+id/divider_chips"
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginBottom="12dp"
-                            android:background="@color/outline_variant"
-                            android:visibility="gone" />
-
-                        <HorizontalScrollView
-                            android:id="@+id/scroll_chips"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:scrollbars="none"
-                            android:visibility="gone">
-
-                            <LinearLayout
-                                android:id="@+id/container_chips"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal" />
-                        </HorizontalScrollView>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Floating step number badge -->
-                <TextView
-                    android:id="@+id/tv_badge_numero"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="24dp"
-                    android:background="@drawable/bg_circle_primary"
-                    android:gravity="center"
-                    android:text="1"
-                    android:textColor="@color/on_primary"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-            </FrameLayout>
-
-            <TextView
-                android:id="@+id/tv_sem_passos"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_passo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:padding="32dp"
-                android:text="Nenhum passo cadastrado para esta receita."
-                android:textColor="@color/outline"
-                android:textSize="15sp"
-                android:visibility="gone" />
+                android:layout_marginTop="24dp"
+                app:cardBackgroundColor="@color/surface_container"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="3dp">
 
-        </LinearLayout>
-    </ScrollView>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp"
+                    android:paddingTop="30dp">
+
+                    <TextView
+                        android:id="@+id/tv_titulo_passo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:textColor="@color/on_surface"
+                        android:textSize="26sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_descricao_passo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:lineSpacingMultiplier="1.5"
+                        android:textColor="@color/on_surface_variant"
+                        android:textSize="16sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_iniciar_timer"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="Iniciar Timer"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="16dp"
+                        android:visibility="gone" />
+
+                    <View
+                        android:id="@+id/divider_chips"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="@color/outline_variant"
+                        android:visibility="gone" />
+
+                    <HorizontalScrollView
+                        android:id="@+id/scroll_chips"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:scrollbars="none"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:id="@+id/container_chips"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+                    </HorizontalScrollView>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Floating step number badge -->
+            <TextView
+                android:id="@+id/tv_badge_numero"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="24dp"
+                android:background="@drawable/bg_circle_primary"
+                android:gravity="center"
+                android:text="1"
+                android:textColor="@color/on_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </FrameLayout>
+    </FrameLayout>
 
     <!-- Navigation buttons -->
     <LinearLayout

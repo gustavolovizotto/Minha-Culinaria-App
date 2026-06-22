@@ -18,6 +18,13 @@
             android:layout_height="match_parent"
             android:background="@color/primary_container" />
 
+        <ImageView
+            android:id="@+id/iv_foto_categoria"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
+
         <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"

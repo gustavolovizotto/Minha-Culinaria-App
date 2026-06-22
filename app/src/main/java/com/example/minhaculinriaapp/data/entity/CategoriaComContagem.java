@@ -6,4 +6,5 @@ public class CategoriaComContagem {
     public String descricao;
     public String cor;
     public int total;
+    public String fotoPath;
 }

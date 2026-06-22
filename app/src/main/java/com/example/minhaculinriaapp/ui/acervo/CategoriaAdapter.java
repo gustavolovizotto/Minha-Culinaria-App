@@ -1,10 +1,14 @@
 package com.example.minhaculinriaapp.ui.acervo;
 
 import android.graphics.Color;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.io.File;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -69,6 +73,16 @@ public class CategoriaAdapter extends RecyclerView.Adapter<CategoriaAdapter.View
         }
         holder.viewCor.setBackgroundColor(cor);
 
+        if (item.fotoPath != null && !item.fotoPath.isEmpty()) {
+            Uri uri = item.fotoPath.startsWith("content://")
+                    ? Uri.parse(item.fotoPath)
+                    : Uri.fromFile(new File(item.fotoPath));
+            holder.ivFoto.setImageURI(uri);
+            holder.ivFoto.setVisibility(View.VISIBLE);
+        } else {
+            holder.ivFoto.setVisibility(View.GONE);
+        }
+
         boolean selecionada = categoriaFiltroId != null && categoriaFiltroId == item.id;
         holder.itemView.setAlpha(selecionada ? 1f : (categoriaFiltroId != null ? 0.5f : 1f));
         holder.itemView.setScaleX(selecionada ? 1.03f : 1f);
@@ -90,11 +104,13 @@ public class CategoriaAdapter extends RecyclerView.Adapter<CategoriaAdapter.View
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View viewCor;
+        ImageView ivFoto;
         TextView tvNome, tvContagem;
 
         ViewHolder(View itemView) {
             super(itemView);
             viewCor = itemView.findViewById(R.id.view_cor);
+            ivFoto = itemView.findViewById(R.id.iv_foto_categoria);
             tvNome = itemView.findViewById(R.id.tv_nome_categoria);
             tvContagem = itemView.findViewById(R.id.tv_contagem);
         }

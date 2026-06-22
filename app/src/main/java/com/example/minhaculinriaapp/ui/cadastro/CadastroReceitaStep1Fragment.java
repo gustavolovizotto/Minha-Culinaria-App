@@ -40,6 +40,7 @@ public class CadastroReceitaStep1Fragment extends Fragment
     private Long categoriaIdSelecionada = null;
     private ImageView ivFoto;
     private View layoutSemFoto;
+    private View chipNovaRef;
 
     private final ActivityResultLauncher<String> pickImageLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
@@ -66,6 +67,7 @@ public class CadastroReceitaStep1Fragment extends Fragment
         etNome = view.findViewById(R.id.et_nome);
         etDescricao = view.findViewById(R.id.et_descricao);
         chipsContainer = view.findViewById(R.id.chips_categorias);
+        chipNovaRef = view.findViewById(R.id.chip_nova_categoria);
         ivFoto = view.findViewById(R.id.iv_foto_receita);
         layoutSemFoto = view.findViewById(R.id.layout_sem_foto);
 
@@ -153,15 +155,11 @@ public class CadastroReceitaStep1Fragment extends Fragment
     }
 
     private void popularChipsCategorias(List<Categoria> categorias) {
-        View chipNova = chipsContainer.findViewWithTag("chip_nova");
-        if (chipNova == null) {
-            chipsContainer.removeAllViews();
-            chipNova = requireView().findViewById(R.id.chip_nova_categoria);
-        } else {
-            for (int i = chipsContainer.getChildCount() - 2; i >= 0; i--) {
-                chipsContainer.removeViewAt(i);
-            }
+        // Remover o chip "Nova" temporariamente antes de limpar o container
+        if (chipNovaRef.getParent() != null) {
+            ((android.view.ViewGroup) chipNovaRef.getParent()).removeView(chipNovaRef);
         }
+        chipsContainer.removeAllViews();
 
         if (categorias != null) {
             for (Categoria cat : categorias) {
@@ -169,12 +167,14 @@ public class CadastroReceitaStep1Fragment extends Fragment
                         .inflate(R.layout.item_tag_chip, chipsContainer, false);
                 chip.setText(cat.nome);
                 boolean selecionada = cat.id == (categoriaIdSelecionada != null ? categoriaIdSelecionada : -1);
-                chip.setTag(selecionada);
                 applyChipStyle(chip, selecionada);
                 chip.setOnClickListener(v -> selecionarCategoria(chip, cat.id, categorias.size()));
-                chipsContainer.addView(chip, chipsContainer.getChildCount());
+                chipsContainer.addView(chip);
             }
         }
+
+        // Readicionar o chip "Nova" sempre no final
+        chipsContainer.addView(chipNovaRef);
     }
 
     private void selecionarCategoria(TextView chipClicado, long catId, int total) {
@@ -203,7 +203,7 @@ public class CadastroReceitaStep1Fragment extends Fragment
             chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.on_primary));
         } else {
             chip.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.chip_category));
-            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.on_surface_variant));
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.on_surface));
         }
     }
 }

@@ -112,7 +112,8 @@
                         android:id="@+id/et_rendimento"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="number" />
+                        android:inputType="number"
+                        android:textColor="@color/on_surface" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -126,7 +127,8 @@
                         android:id="@+id/et_tempo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="number" />
+                        android:inputType="number"
+                        android:textColor="@color/on_surface" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
@@ -204,7 +206,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text"
-                        android:imeOptions="actionDone" />
+                        android:imeOptions="actionDone"
+                        android:textColor="@color/on_surface" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.button.MaterialButton
@@ -253,7 +256,8 @@
                     android:layout_height="wrap_content"
                     android:inputType="textCapSentences|textMultiLine"
                     android:minLines="3"
-                    android:gravity="top" />
+                    android:gravity="top"
+                    android:textColor="@color/on_surface" />
             </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>

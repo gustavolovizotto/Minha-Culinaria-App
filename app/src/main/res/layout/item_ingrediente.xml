@@ -15,7 +15,8 @@
             android:id="@+id/et_quantidade"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text" />
+            android:inputType="text"
+            android:textColor="@color/on_surface" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -28,7 +29,8 @@
             android:id="@+id/et_nome_ingrediente"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textCapSentences" />
+            android:inputType="textCapSentences"
+            android:textColor="@color/on_surface" />
     </com.google.android.material.textfield.TextInputLayout>
 
 </LinearLayout>

@@ -365,6 +365,15 @@ public class MaosNaMassaFragment extends Fragment {
             if (matches != null) {
                 for (String match : matches) {
                     String lower = match.toLowerCase(Locale.getDefault());
+                    if (lower.contains("finalizar")) {
+                        int idx = viewModel.getIndice().getValue() != null
+                                ? viewModel.getIndice().getValue() : 0;
+                        if (idx >= listaPassos.size() - 1) {
+                            requireActivity().runOnUiThread(() ->
+                                    Navigation.findNavController(requireView()).navigateUp());
+                        }
+                        break;
+                    }
                     if (lower.contains("próximo") || lower.contains("proximo")
                             || lower.contains("avança") || lower.contains("avancar")) {
                         viewModel.avancar();

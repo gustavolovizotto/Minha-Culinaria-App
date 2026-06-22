@@ -151,7 +151,8 @@
                     android:id="@+id/et_nome"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textCapSentences" />
+                    android:inputType="textCapSentences"
+                    android:textColor="@color/on_surface" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Description input -->
@@ -167,7 +168,8 @@
                     android:layout_height="wrap_content"
                     android:inputType="textCapSentences|textMultiLine"
                     android:minLines="3"
-                    android:gravity="top" />
+                    android:gravity="top"
+                    android:textColor="@color/on_surface" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Category chips -->

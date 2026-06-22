@@ -30,7 +30,7 @@ public interface CategoriaDao {
     @Query("SELECT * FROM categorias WHERE id = :id")
     LiveData<Categoria> buscarPorId(long id);
 
-    @Query("SELECT c.id, c.nome, c.descricao, c.cor, COUNT(r.id) as total " +
+    @Query("SELECT c.id, c.nome, c.descricao, c.cor, c.foto_path as fotoPath, COUNT(r.id) as total " +
            "FROM categorias c LEFT JOIN receitas r ON r.categoria_id = c.id " +
            "GROUP BY c.id ORDER BY c.nome ASC")
     LiveData<List<CategoriaComContagem>> listarComContagem();

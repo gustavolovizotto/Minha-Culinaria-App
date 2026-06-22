@@ -15,7 +15,7 @@
         android:background="@null"
         android:hint="Variável"
         android:textSize="13sp"
-        android:textColor="@color/on_surface_variant"
+        android:textColor="@color/on_surface"
         android:textColorHint="@color/outline"
         android:inputType="text"
         android:maxLines="1"
